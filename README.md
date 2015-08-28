@@ -1,5 +1,5 @@
 # SmartPrintScreen for Android
-The Android version of my program SmartPrintScreen that originally were made for Windows: https://github.com/entdark/SmartPrintScreen
+The Android version of my program SmartPrintScreen that was originally made for Windows: https://github.com/entdark/SmartPrintScreen
 
 # Features
 Each time you take a screenshot it gets uploaded on imgur.com anonymously and copies the uploaded image URL to the clipboard.  
