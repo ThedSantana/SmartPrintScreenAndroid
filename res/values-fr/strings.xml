@@ -3,8 +3,8 @@
     <string name="app_name">SmartPrintScreen</string>
     <string name="start_on_boot">Lancer au démarrage du téléphone</string>
     <string name="clear_list">Effacer la liste</string>
-    <string name="copied_to_clipboard_toast">URL de la capture d'écran copiée</string>
-    <string name="clear_list_alert">Effacer la liste d'URLs?</string>
+    <string name="copied_to_clipboard_toast">URL de la capture d\'écran copiée</string>
+    <string name="clear_list_alert">Effacer la liste d\'URLs?</string>
     <string name="remove_url_alert">Supprimer cette URL?</string>
     <string name="ok_alert">Valider</string>
     <string name="cancel_alert">Annuler</string>
