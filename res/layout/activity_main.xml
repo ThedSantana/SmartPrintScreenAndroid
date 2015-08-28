@@ -1,7 +1,43 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android1="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    tools:context=".MainActivity" >
+
+    <HorizontalScrollView
+        android1:id="@+id/horizontalScrollView1"
+        android1:layout_width="wrap_content"
+        android1:layout_height="wrap_content" >
+
+        <LinearLayout
+            android1:layout_width="wrap_content"
+            android1:layout_height="match_parent"
+            android1:orientation="horizontal" >
+
+            <CheckBox
+                android1:id="@+id/startOnBoot"
+                android1:layout_width="wrap_content"
+                android1:layout_height="wrap_content"
+                android1:checked="true"
+                android1:text="@string/start_on_boot" />
+
+            <Button
+                android1:id="@+id/clearList"
+                android1:layout_width="wrap_content"
+                android1:layout_height="wrap_content"
+                android1:text="@string/clear_list" />
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <ListView
+        android1:id="@+id/screenshotsURLs"
+        android1:layout_width="match_parent"
+        android1:layout_height="wrap_content"
+        android1:fitsSystemWindows="false"
+        android1:headerDividersEnabled="false" >
+
+    </ListView>
+
 </LinearLayout>

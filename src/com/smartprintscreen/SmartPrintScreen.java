@@ -2,6 +2,7 @@ package com.smartprintscreen;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -11,7 +12,7 @@ import java.net.URLEncoder;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -19,14 +20,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Environment;
 import android.os.FileObserver;
 import android.os.IBinder;
 import android.util.Base64;
 import android.util.Log;
-import android.view.Gravity;
-import android.widget.TextView;
-import android.widget.Toast;
 
 public class SmartPrintScreen extends Service {
 	private String TAG = "SmartPrintScreen";
@@ -39,6 +38,7 @@ public class SmartPrintScreen extends Service {
 		Log.i(TAG, "SmartPrintScreen()");
 		service = this;
 	}
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	@Override
 	public void onCreate() {
 		super.onCreate();
@@ -66,7 +66,8 @@ public class SmartPrintScreen extends Service {
 	        }
 	    };
 	    fileObserver.startWatching();
-		return super.onStartCommand(intent, flags, startId);
+//	    startForeground(17, null);
+		return START_STICKY;
 	}
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -135,13 +136,16 @@ public class SmartPrintScreen extends Service {
 	    protected void onPostExecute(String url) {
 	    	WifiManager wifi = (WifiManager)getSystemService(Context.WIFI_SERVICE);
         	if (url != null) {
-        		if (copyToClipboard(service, url)) {
+        		if (Shared.copyToClipboard(service, url)) {
             		Log.d(TAG, "Screenshot URL copied to clipboard: " + url);
-            		Toast toast = Toast.makeText(service, "Screenshot URL copied to clipboard:\n" + url, Toast.LENGTH_SHORT);
-            		TextView v = (TextView)toast.getView().findViewById(android.R.id.message);
-            		if(v != null)
-            			v.setGravity(Gravity.CENTER);
-            		toast.show();
+            		Shared.showToast(service, Shared.resStr(service, R.string.copied_to_clipboard_toast) + ":\n" + url);
+            		
+            		String[] data = {url};
+            		try {
+						SaveLoadData.saveData(service, data, "screenshotsURLs", true);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
         		} else {
             		Log.d(TAG, "Screenshot URL failed to get copied: " + url);
         		}
@@ -152,26 +156,4 @@ public class SmartPrintScreen extends Service {
 	        super.onPostExecute(url);
 	    }
 	}
-	@SuppressLint("NewApi")
-	public boolean copyToClipboard(Context context, String text) {
-        try {
-            int sdk = android.os.Build.VERSION.SDK_INT;
-            if (sdk < android.os.Build.VERSION_CODES.HONEYCOMB) {
-                android.text.ClipboardManager clipboard = (android.text.ClipboardManager) context
-                        .getSystemService(context.CLIPBOARD_SERVICE);
-                clipboard.setText(text);
-    			Log.i("copyToClipboard", "oldSDK");
-            } else {
-                android.content.ClipboardManager clipboard = (android.content.ClipboardManager) context
-                        .getSystemService(context.CLIPBOARD_SERVICE);
-                android.content.ClipData clip = android.content.ClipData
-                        .newPlainText(text + "copied to clipboard", text);
-                clipboard.setPrimaryClip(clip);
-    			Log.i("copyToClipboard", "newSDK");
-            }
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
 }

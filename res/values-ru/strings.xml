@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SmartPrintScreen</string>
+    <string name="start_on_boot">Запускать при включении</string>
+    <string name="clear_list">Очистить список</string>
+    <string name="copied_to_clipboard_toast">Ссылка снимка экрана скопирована</string>
+    <string name="clear_list_alert">Очистить список ссылок?</string>
+    <string name="remove_url_alert">Удалить эту ссылку?</string>
+    <string name="ok_alert">ОК</string>
+    <string name="cancel_alert">Отмена</string>
+</resources>
