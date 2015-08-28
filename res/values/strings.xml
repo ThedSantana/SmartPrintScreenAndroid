@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">SmartPrintScreen</string>
-    <string name="start_on_boot">Start on phone boot</string>
+    <string name="start_on_boot">Start on device boot</string>
     <string name="clear_list">Clear List</string>
     <string name="copied_to_clipboard_toast">Screenshot URL copied to clipboard</string>
     <string name="clear_list_alert">Clear URLs list?</string>
