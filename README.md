@@ -12,6 +12,6 @@ The latest release could be found in "releases" tab.
 
 # Translation Credits
 * Alpha (Avygeil) (fr)
-* Zemekis (es)
+* Zemekis (es, bg)
 * mrwonko (de)
 * Sil (cs)

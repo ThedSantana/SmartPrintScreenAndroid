@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="app_name">SmartPrintScreen</string>
+	<string name="start_on_boot">Стартирай при включване</string>
+	<string name="clear_list">Изтриване на списъка</string>
+	<string name="copied_to_clipboard_toast">URL на екранната снимка е копирана</string>
+	<string name="clear_list_alert">Желаете ли да изтриете списъка?</string>
+	<string name="remove_url_alert">Искате ли да изтриете този URL?</string>
+	<string name="ok_alert">Да</string>
+	<string name="cancel_alert">Отказ</string>
+</resources>
