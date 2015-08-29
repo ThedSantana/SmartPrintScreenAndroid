@@ -30,7 +30,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
-	private String TAG = "MainActivity";
+	private String TAG = "SmartPrintScreenUI";
 	CheckBox startOnBoot;
 	Button clearList;
 	
@@ -42,10 +42,20 @@ public class MainActivity extends Activity {
 	
 	private static Activity activity;
 	
+	private void saveLog() {
+		try {
+        	String[] command = new String[] {"logcat", "-v", "threadtime", "-f", getFilesDir().toString()+"/SmartPrintScreen.log"};
+            Runtime.getRuntime().exec(command);
+        } catch (IOException e) {
+        	Log.e(TAG + " saveLog", "getCurrentProcessLog failed", e);
+        }
+	}
+	
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	@Override
 	protected void onCreate(Bundle bundle) {
 		super.onCreate(bundle);
+		saveLog();
 		activity = this;
 		activity.setTheme(android.R.style.Theme_Holo);
 
