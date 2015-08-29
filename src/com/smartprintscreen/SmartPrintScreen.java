@@ -1,4 +1,5 @@
 package com.smartprintscreen;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -30,8 +31,14 @@ import android.util.Log;
 public class SmartPrintScreen extends Service {
 	private String TAG = "SmartPrintScreen";
 	private String ClientId = "a964b399e5b6022";
-	private static FileObserver fileObserver;
-	String screenshotsFolder;
+	
+	private static String eStorage = Environment.getExternalStorageDirectory().toString();
+	private static String sep = File.separator;
+	private static FileObserver[] fileObserver;
+	private static String[] screenshotsFolder = {
+		eStorage + sep + "Screenshots",
+		eStorage + sep + Environment.DIRECTORY_PICTURES + sep + "Screenshots"};
+	
 	private Service service;
 	public SmartPrintScreen() {
 		super();
@@ -49,23 +56,34 @@ public class SmartPrintScreen extends Service {
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		Log.i(TAG, "onStartCommand");
     	service = this;
-		screenshotsFolder = Environment.getExternalStorageDirectory() + File.separator + "Screenshots";
-	    Log.d(TAG, screenshotsFolder);
-	    fileObserver = new FileObserver(screenshotsFolder) {
-	        @Override
-	        public void onEvent(int event, String path) {
-	            if (event == FileObserver.CLOSE_WRITE) {
-	            	String screenshotFile = screenshotsFolder + File.separator + path;
-		            Log.d(TAG, screenshotFile);
-		            BitmapFactory.Options opt = new BitmapFactory.Options();
-		            opt.inDither = true;
-		            opt.inPreferredConfig = Bitmap.Config.ARGB_8888;
-	            	Bitmap bitmap = BitmapFactory.decodeFile(screenshotFile, opt);
-		            new uploadToImgurTask().execute(bitmap);
-	            }
-	        }
-	    };
-	    fileObserver.startWatching();
+    	fileObserver = new FileObserver[screenshotsFolder.length];
+    	for (int i = 0; i < screenshotsFolder.length; i++) {
+    		final int j = i;
+		    if (!(new File(screenshotsFolder[i])).exists()) {
+			    Log.d(TAG, screenshotsFolder[i] + " missing");
+		    	continue;
+		    }
+		    Log.d(TAG, screenshotsFolder[i]);
+		    fileObserver[i] = new FileObserver(screenshotsFolder[i]) {
+		        @Override
+		        public void onEvent(int event, String path) {
+		            if (event == FileObserver.CLOSE_WRITE) {
+		            	String screenshotFile = screenshotsFolder[j] + File.separator + path;
+		            	if (!(new File(screenshotFile)).exists()) {
+		    			    Log.e(TAG, screenshotFile + " not found");
+		    		    	return;
+		    		    }
+			            Log.d(TAG, screenshotFile);
+			            BitmapFactory.Options opt = new BitmapFactory.Options();
+			            opt.inDither = true;
+			            opt.inPreferredConfig = Bitmap.Config.ARGB_8888;
+		            	Bitmap bitmap = BitmapFactory.decodeFile(screenshotFile, opt);
+			            new uploadToImgurTask().execute(bitmap);
+		            }
+		        }
+		    };
+		    fileObserver[i].startWatching();
+    	}
 //	    startForeground(17, null);
 		return START_STICKY;
 	}
