@@ -52,6 +52,20 @@ public class SmartPrintScreen extends Service {
 		service.setTheme(android.R.style.Theme_Holo);
 		Log.i(TAG, "onCreate");
 	}
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		Log.i(TAG, "onDestroy");
+		//I hope it's not that bad
+		new Thread() {
+			@Override
+			public void run() {
+				Intent in = new Intent(service, SmartPrintScreen.class);
+				Log.d(TAG, "restarting service com.smartprintscreen.SmartPrintScreen");
+				startService(in);
+			}
+		}.start();
+	}
     @Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		Log.i(TAG, "onStartCommand");
@@ -78,7 +92,8 @@ public class SmartPrintScreen extends Service {
 			            opt.inDither = true;
 			            opt.inPreferredConfig = Bitmap.Config.ARGB_8888;
 		            	Bitmap bitmap = BitmapFactory.decodeFile(screenshotFile, opt);
-			            new uploadToImgurTask().execute(bitmap);
+		            	if (bitmap != null)
+		            		new uploadToImgurTask().execute(bitmap);
 		            }
 		        }
 		    };
@@ -169,7 +184,7 @@ public class SmartPrintScreen extends Service {
         		}
         	//if wi-fi is enabled then we actually failed
         	} else if (wifi.isWifiEnabled()) {
-        		Log.w(TAG, "Failed to read a file from " + screenshotsFolder);
+        		Log.w(TAG, "Failed to upload file");
         	}
 	        super.onPostExecute(url);
 	    }
