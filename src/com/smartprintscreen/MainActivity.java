@@ -77,7 +77,7 @@ public class MainActivity extends Activity {
 					Log.d(TAG, "starting service com.smartprintscreen.SmartPrintScreen");
 					startService(service);
 				}
-			}.run();
+			}.start();
 		}
 		
 		loadParameters();
