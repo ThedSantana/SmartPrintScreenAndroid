@@ -9,3 +9,9 @@ Screenshot URLs are listed in the application and you are able to remove them if
 The latest release could be found in "releases" tab.
 
 ![SmartPrintScreenAndroid](http://i.imgur.com/05nakBY.png)
+
+# Translation Credits
+* Alpha (Avygeil) (fr)
+* Zemekis (es)
+* mrwonko (de)
+* Sil (cs)

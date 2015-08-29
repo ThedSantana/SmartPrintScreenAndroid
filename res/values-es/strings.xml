@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SmartPrintScreen</string>
+    <string name="start_on_boot">Iniciar durante el arranque del dispositivo</string>
+    <string name="clear_list">Borra la lista</string>
+    <string name="copied_to_clipboard_toast">URL de la captura copiada al portapapeles</string>
+    <string name="clear_list_alert">Desea borrar la lista?</string>
+    <string name="remove_url_alert">Quiere borrar esta URL?</string>
+    <string name="ok_alert">Sí</string>
+    <string name="cancel_alert">Cancelar</string>
+</resources>
