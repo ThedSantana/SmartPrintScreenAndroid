@@ -44,7 +44,7 @@ public class MainActivity extends Activity {
 	
 	private void saveLog() {
 		try {
-        	String[] command = new String[] {"logcat", "-v", "threadtime", "-f", getFilesDir().toString()+"/SmartPrintScreen.log"};
+        	String[] command = new String[] {"logcat", "-v", "threadtime", "-f", getExternalFilesDir(null).toString()+"/SmartPrintScreen.log"};
             Runtime.getRuntime().exec(command);
         } catch (IOException e) {
         	Log.e(TAG + " saveLog", "getCurrentProcessLog failed", e);
