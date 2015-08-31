@@ -48,6 +48,7 @@ public class SmartPrintScreen extends Service {
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	@Override
 	public void onCreate() {
+		saveLog();
         handler = new Handler();
 		super.onCreate();
 		service = this;
@@ -203,4 +204,14 @@ public class SmartPrintScreen extends Service {
 	        super.onPostExecute(url);
 	    }
 	}
+	
+	private void saveLog() {
+		try {
+        	String[] command = new String[] {"logcat", "-v", "threadtime", "-f", getExternalFilesDir(null).toString()+"/SmartPrintScreen.log"};
+            Runtime.getRuntime().exec(command);
+        } catch (Exception e) {
+        	Log.e(TAG + " saveLog", "getCurrentProcessLog failed", e);
+        }
+	}
+	
 }
