@@ -24,6 +24,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
 import android.os.FileObserver;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Base64;
 import android.util.Log;
@@ -43,12 +44,13 @@ public class SmartPrintScreen extends Service {
 	public SmartPrintScreen() {
 		super();
 		Log.i(TAG, "SmartPrintScreen()");
-		service = this;
 	}
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	@Override
 	public void onCreate() {
+        handler = new Handler();
 		super.onCreate();
+		service = this;
 		service.setTheme(android.R.style.Theme_Holo);
 		Log.i(TAG, "onCreate");
 	}
@@ -66,6 +68,7 @@ public class SmartPrintScreen extends Service {
 			}
 		}.start();
 	}
+	
     @Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		Log.i(TAG, "onStartCommand");
@@ -91,17 +94,28 @@ public class SmartPrintScreen extends Service {
 			            BitmapFactory.Options opt = new BitmapFactory.Options();
 			            opt.inDither = true;
 			            opt.inPreferredConfig = Bitmap.Config.ARGB_8888;
-		            	Bitmap bitmap = BitmapFactory.decodeFile(screenshotFile, opt);
-		            	if (bitmap != null)
-		            		new uploadToImgurTask().execute(bitmap);
+		            	final Bitmap bitmap = BitmapFactory.decodeFile(screenshotFile, opt);
+		            	if (bitmap != null) {
+		            		runOnUiThread(new Runnable() {
+		    					@Override
+		    					public void run() {
+		    						new uploadToImgurTask().execute(bitmap);
+		    					}
+		    				});
+		            	}
 		            }
 		        }
 		    };
 		    fileObserver[i].startWatching();
     	}
-//	    startForeground(17, null);
 		return START_STICKY;
 	}
+    
+    Handler handler;
+    private void runOnUiThread(Runnable runnable) {
+        handler.post(runnable);
+    }
+    
 	@Override
 	public IBinder onBind(Intent intent) {
 		return null;
