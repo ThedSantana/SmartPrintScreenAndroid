@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">SmartPrintScreen</string>
     <string name="start_on_boot">Beim hochfahren starte</string>
-    <string name="clear_list">Liste Leeren</string>
+    <string name="clear_list">Liste leeren</string>
     <string name="copied_to_clipboard_toast">Screenshot URL in zwischenablage kopiert</string>
     <string name="clear_list_alert">URL-Liste leeren?</string>
     <string name="remove_url_alert">Diese URL löschen?</string>
