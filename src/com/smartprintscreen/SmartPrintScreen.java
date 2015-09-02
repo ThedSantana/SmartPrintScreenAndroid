@@ -36,9 +36,11 @@ public class SmartPrintScreen extends Service {
 	private static String eStorage = Environment.getExternalStorageDirectory().toString();
 	private static String sep = File.separator;
 	private static FileObserver[] fileObserver;
+	private static FileObserver[] fileObserverLvlUp;
+	//Folder that is supposed to contain "Screenshots" folder
 	private static String[] screenshotsFolder = {
-		eStorage + sep + "Screenshots",
-		eStorage + sep + Environment.DIRECTORY_PICTURES + sep + "Screenshots"};
+		eStorage,
+		eStorage + sep + Environment.DIRECTORY_PICTURES};
 	
 	private Service service;
 	public SmartPrintScreen() {
@@ -64,7 +66,7 @@ public class SmartPrintScreen extends Service {
 			@Override
 			public void run() {
 				Intent in = new Intent(service, SmartPrintScreen.class);
-				Log.d(TAG, "restarting service com.smartprintscreen.SmartPrintScreen");
+				Log.i(TAG, "restarting service com.smartprintscreen.SmartPrintScreen");
 				startService(in);
 			}
 		}.start();
@@ -75,23 +77,44 @@ public class SmartPrintScreen extends Service {
 		Log.i(TAG, "onStartCommand");
     	service = this;
     	fileObserver = new FileObserver[screenshotsFolder.length];
+    	fileObserverLvlUp = new FileObserver[screenshotsFolder.length];
     	for (int i = 0; i < screenshotsFolder.length; i++) {
     		final int j = i;
-		    if (!(new File(screenshotsFolder[i])).exists()) {
-			    Log.d(TAG, screenshotsFolder[i] + " missing");
-		    	continue;
+    		final String ssFolder = screenshotsFolder[i] + sep + "Screenshots";
+    		boolean found = false;
+		    //check if "Screenshots" even exists, if no then it can be created afterward so we monitor level up folder
+    		if (!(new File(ssFolder)).exists()) {
+			    Log.i(TAG, ssFolder + " missing, checking level up");
+			    if (!(new File(screenshotsFolder[i])).exists()) {
+				    Log.i(TAG, screenshotsFolder[i] + " missing");
+				    continue;
+			    } else {
+			    	Log.i(TAG, screenshotsFolder[i]);
+			    }
+			    fileObserverLvlUp[i] = new FileObserver(screenshotsFolder[i]) {
+			        @Override
+			        public void onEvent(int event, String path) {
+			            if ((event & FileObserver.CREATE) != 0 && path.equalsIgnoreCase("Screenshots")) {
+			            	fileObserver[j].startWatching();
+					    	Log.i(TAG, "Created " + path + " in " + screenshotsFolder[j] + ", start monitoring");
+			            }
+			        }
+			    };
+			    fileObserverLvlUp[i].startWatching();
+		    } else {
+		    	Log.i(TAG, ssFolder);
+		    	found = true;
 		    }
-		    Log.d(TAG, screenshotsFolder[i]);
-		    fileObserver[i] = new FileObserver(screenshotsFolder[i]) {
+		    fileObserver[i] = new FileObserver(ssFolder) {
 		        @Override
 		        public void onEvent(int event, String path) {
-		            if (event == FileObserver.CLOSE_WRITE) {
-		            	String screenshotFile = screenshotsFolder[j] + File.separator + path;
+		            if ((event & FileObserver.CLOSE_WRITE) != 0) {
+		            	String screenshotFile = ssFolder + sep + path;
 		            	if (!(new File(screenshotFile)).exists()) {
 		    			    Log.e(TAG, screenshotFile + " not found");
 		    		    	return;
 		    		    }
-			            Log.d(TAG, screenshotFile);
+			            Log.i(TAG, screenshotFile);
 			            BitmapFactory.Options opt = new BitmapFactory.Options();
 			            opt.inDither = true;
 			            opt.inPreferredConfig = Bitmap.Config.ARGB_8888;
@@ -107,7 +130,8 @@ public class SmartPrintScreen extends Service {
 		            }
 		        }
 		    };
-		    fileObserver[i].startWatching();
+		    if (found)
+		    	fileObserver[i].startWatching();
     	}
 		return START_STICKY;
 	}
@@ -125,7 +149,7 @@ public class SmartPrintScreen extends Service {
 		@Override
 	    protected String doInBackground(Bitmap... params) {
 	    	try {
-				Log.d("getUploadedShotURL", "start");
+				Log.i("getUploadedShotURL", "start");
 				ByteArrayOutputStream byteArray = new ByteArrayOutputStream();
 				params[0].compress(Bitmap.CompressFormat.PNG, 100, byteArray); // Not sure whether this should be jpeg or png, try both and see which works best
 				URL url = new URL("https://api.imgur.com/3/image");
@@ -148,7 +172,7 @@ public class SmartPrintScreen extends Service {
 				InputStream is;
 				int response = conn.getResponseCode();
 				if (response != HttpURLConnection.HTTP_OK) {
-					Log.d("getUploadedShotURL", "bad https response: " + response);
+					Log.w("getUploadedShotURL", "bad https response: " + response);
 				    is = conn.getErrorStream();
 				} else {
 				    is = conn.getInputStream();
@@ -170,7 +194,7 @@ public class SmartPrintScreen extends Service {
 				Log.d("getUploadedShotURL", "reg: " + reg);
 				Matcher match = reg.matcher(result);
 				Log.d("getUploadedShotURL", "match: " + match);
-				Log.d("getUploadedShotURL", "end");
+				Log.i("getUploadedShotURL", "end");
 				//our image url
 				if (match.find())
 					return match.group(0).replace("link\":\"", "").replace("\"", "").replace("\\/", "/");
@@ -185,7 +209,7 @@ public class SmartPrintScreen extends Service {
 	    	WifiManager wifi = (WifiManager)getSystemService(Context.WIFI_SERVICE);
         	if (url != null) {
         		if (Shared.copyToClipboard(service, url)) {
-            		Log.d(TAG, "Screenshot URL copied to clipboard: " + url);
+            		Log.i(TAG, "Screenshot URL copied to clipboard: " + url);
             		Shared.showToast(service, Shared.resStr(service, R.string.copied_to_clipboard_toast) + ":\n" + url);
             		
             		String[] data = {url};
@@ -195,7 +219,7 @@ public class SmartPrintScreen extends Service {
 						e.printStackTrace();
 					}
         		} else {
-            		Log.d(TAG, "Screenshot URL failed to get copied: " + url);
+            		Log.i(TAG, "Screenshot URL failed to get copied: " + url);
         		}
         	//if wi-fi is enabled then we actually failed
         	} else if (wifi.isWifiEnabled()) {
