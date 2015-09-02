@@ -15,3 +15,4 @@ The latest release could be found in "releases" tab.
 * Zemekis (es, bg)
 * mrwonko (de)
 * Sil (cs)
+* DiamondBack (Miłosz Kołacz) (pl)
