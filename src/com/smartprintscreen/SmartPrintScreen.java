@@ -42,6 +42,8 @@ public class SmartPrintScreen extends Service {
 		eStorage,
 		eStorage + sep + Environment.DIRECTORY_PICTURES};
 	
+	boolean removeShots = false;
+	
 	private Service service;
 	public SmartPrintScreen() {
 		super();
@@ -55,6 +57,9 @@ public class SmartPrintScreen extends Service {
 		super.onCreate();
 		service = this;
 		service.setTheme(android.R.style.Theme_Holo);
+		
+		loadParameters();
+		
 		Log.i(TAG, "onCreate");
 	}
 	@Override
@@ -109,7 +114,7 @@ public class SmartPrintScreen extends Service {
 		        @Override
 		        public void onEvent(int event, String path) {
 		            if ((event & FileObserver.CLOSE_WRITE) != 0) {
-		            	String screenshotFile = ssFolder + sep + path;
+		            	final String screenshotFile = ssFolder + sep + path;
 		            	if (!(new File(screenshotFile)).exists()) {
 		    			    Log.e(TAG, screenshotFile + " not found");
 		    		    	return;
@@ -123,7 +128,7 @@ public class SmartPrintScreen extends Service {
 		            		runOnUiThread(new Runnable() {
 		    					@Override
 		    					public void run() {
-		    						new uploadToImgurTask().execute(bitmap);
+		    						new uploadToImgurTask().execute(bitmap, screenshotFile);
 		    					}
 		    				});
 		            	}
@@ -145,13 +150,13 @@ public class SmartPrintScreen extends Service {
 	public IBinder onBind(Intent intent) {
 		return null;
 	}
-	class uploadToImgurTask extends AsyncTask<Bitmap, Void, String> {
+	class uploadToImgurTask extends AsyncTask<Object, Void, String[]> {
 		@Override
-	    protected String doInBackground(Bitmap... params) {
+	    protected String[] doInBackground(Object... params) {
 	    	try {
 				Log.i("getUploadedShotURL", "start");
 				ByteArrayOutputStream byteArray = new ByteArrayOutputStream();
-				params[0].compress(Bitmap.CompressFormat.PNG, 100, byteArray); // Not sure whether this should be jpeg or png, try both and see which works best
+				((Bitmap)params[0]).compress(Bitmap.CompressFormat.PNG, 100, byteArray); // Not sure whether this should be jpeg or png, try both and see which works best
 				URL url = new URL("https://api.imgur.com/3/image");
 			    byte[] byteImage = byteArray.toByteArray();
 			    String dataImage = Base64.encodeToString(byteImage, Base64.DEFAULT);
@@ -196,8 +201,10 @@ public class SmartPrintScreen extends Service {
 				Log.d("getUploadedShotURL", "match: " + match);
 				Log.i("getUploadedShotURL", "end");
 				//our image url
-				if (match.find())
-					return match.group(0).replace("link\":\"", "").replace("\"", "").replace("\\/", "/");
+				if (match.find()) {
+					String ret[] = {match.group(0).replace("link\":\"", "").replace("\"", "").replace("\\/", "/"), ((String)params[1])};
+					return ret;
+				}
 			} catch (Exception e) {
 				Log.e("getUploadedShotURL", e.getMessage());
 				e.printStackTrace();
@@ -205,12 +212,24 @@ public class SmartPrintScreen extends Service {
 			return null;
 	    }
 	    @Override
-	    protected void onPostExecute(String url) {
+	    protected void onPostExecute(String []params) {
 	    	WifiManager wifi = (WifiManager)getSystemService(Context.WIFI_SERVICE);
-        	if (url != null) {
+        	if (params != null) {
+        		String url = params[0], screenshotFile = params[1];
         		if (Shared.copyToClipboard(service, url)) {
             		Log.i(TAG, "Screenshot URL copied to clipboard: " + url);
             		Shared.showToast(service, Shared.resStr(service, R.string.copied_to_clipboard_toast) + ":\n" + url);
+            		//we reached here, so it got uploaded fine
+            		if (removeShots) {
+            			File f = new File(screenshotFile);
+            			if (f.exists() && !f.isDirectory()) {
+            				if (f.delete()) {
+            					Log.i(TAG, "local screenshot has been deleted successfully");
+            				} else {
+            					Log.w(TAG, "local screenshot has failed to get deleted");
+            				}
+            			}
+            		}
             		
             		String[] data = {url};
             		try {
@@ -225,7 +244,7 @@ public class SmartPrintScreen extends Service {
         	} else if (wifi.isWifiEnabled()) {
         		Log.w(TAG, "Failed to upload file");
         	}
-	        super.onPostExecute(url);
+	        super.onPostExecute(params);
 	    }
 	}
 	
@@ -237,5 +256,15 @@ public class SmartPrintScreen extends Service {
         	Log.e(TAG + " saveLog", "getCurrentProcessLog failed", e);
         }
 	}
-	
+
+	private void loadParameters() {
+		String[] parameters = null;
+		try {
+			parameters = SaveLoadData.loadData(this, "parameters");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		if (parameters != null && parameters.length > 1)
+			removeShots = Boolean.parseBoolean(parameters[1]);
+	}
 }

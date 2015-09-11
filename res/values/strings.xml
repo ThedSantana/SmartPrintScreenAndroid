@@ -8,4 +8,6 @@
     <string name="remove_url_alert">Remove this URL?</string>
     <string name="ok_alert">OK</string>
     <string name="cancel_alert">Cancel</string>
+    <string name="remove_shots">Remove captured screenshot from storage after upload</string>
+    <string name="settings">Settings</string>
 </resources>

@@ -6,30 +6,23 @@
     android:orientation="vertical"
     tools:context=".MainActivity" >
 
-    <HorizontalScrollView
-        android1:id="@+id/horizontalScrollView1"
-        android1:layout_width="wrap_content"
+    <LinearLayout
+        android1:layout_width="match_parent"
         android1:layout_height="wrap_content" >
 
-        <LinearLayout
+        <Button
+            android1:id="@+id/settings"
             android1:layout_width="wrap_content"
-            android1:layout_height="match_parent"
-            android1:orientation="horizontal" >
+            android1:layout_height="wrap_content"
+            android1:text="@string/settings" />
 
-            <CheckBox
-                android1:id="@+id/startOnBoot"
-                android1:layout_width="wrap_content"
-                android1:layout_height="wrap_content"
-                android1:checked="true"
-                android1:text="@string/start_on_boot" />
+        <Button
+            android1:id="@+id/clearList"
+            android1:layout_width="match_parent"
+            android1:layout_height="wrap_content"
+            android1:text="@string/clear_list" />
 
-            <Button
-                android1:id="@+id/clearList"
-                android1:layout_width="wrap_content"
-                android1:layout_height="wrap_content"
-                android1:text="@string/clear_list" />
-        </LinearLayout>
-    </HorizontalScrollView>
+    </LinearLayout>
 
     <ListView
         android1:id="@+id/screenshotsURLs"

@@ -8,4 +8,6 @@
     <string name="remove_url_alert">Удалить эту ссылку?</string>
     <string name="ok_alert">ОК</string>
     <string name="cancel_alert">Отмена</string>
+    <string name="remove_shots">Удалять захваченный снимок экрана из памяти после загрузки</string>
+    <string name="settings">Параметры</string>
 </resources>

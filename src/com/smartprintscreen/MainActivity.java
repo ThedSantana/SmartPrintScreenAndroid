@@ -23,16 +23,11 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ListView;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
-	private String TAG = "SmartPrintScreenUI";
-	CheckBox startOnBoot;
-	Button clearList;
+	private String TAG = "SmartPrintScreen UI";
 	
 	ListView screenshotsURLs;
 	private ArrayAdapter<String> adapter;
@@ -51,13 +46,6 @@ public class MainActivity extends Activity {
 
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_main);
-		startOnBoot = (CheckBox)findViewById(R.id.startOnBoot);
-		startOnBoot.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				saveParameters();
-			}
-		});
 
 		if (!isServiceRunning(SmartPrintScreen.class)) {
 			new Thread() {
@@ -70,9 +58,16 @@ public class MainActivity extends Activity {
 			}.start();
 		}
 		
-		loadParameters();
+		Button settings = (Button)findViewById(R.id.settings);
+		settings.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent myIntent = new Intent(v.getContext(), Settings.class);
+                startActivityForResult(myIntent, 0);
+			}
+		});
 		
-		clearList = (Button)findViewById(R.id.clearList);
+		Button clearList = (Button)findViewById(R.id.clearList);
 		clearList.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -163,30 +158,9 @@ public class MainActivity extends Activity {
 	}
 	@Override
 	public void onDestroy() {
-//		stopService(service);
-		saveParameters();
 	    if (fileObserver != null)
 	    	fileObserver.stopWatching();
 		super.onDestroy();
-	}
-	
-	private void saveParameters() {
-		String[] data = {String.valueOf(startOnBoot.isChecked())};
-		try {
-			SaveLoadData.saveData(this, data, "parameters", false);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	private void loadParameters() {
-		String[] parameters = null;
-		try {
-			parameters = SaveLoadData.loadData(this, "parameters");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		if (parameters != null && parameters.length > 0)
-			startOnBoot.setChecked(Boolean.parseBoolean(parameters[0]));
 	}
 	
 	private void reloadURLsList() {
